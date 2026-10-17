@@ -1,0 +1,506 @@
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="#" (click)="$event.preventDefault(); navigate('Dashboard')">
+      <span class="brand-mark">S</span>
+      <span class="brand-copy">
+        <strong>Campus<span>Flow</span></strong>
+        <small>STUDENT MANAGEMENT</small>
+      </span>
+    </a>
+
+    <div class="workspace-label">WORKSPACE</div>
+
+    <nav class="nav-menu" aria-label="Main navigation">
+      <button
+        class="nav-item"
+        [class.active]="activePage === 'Dashboard'"
+        (click)="navigate('Dashboard')">
+        <span class="nav-icon">⌂</span>
+        <span>Dashboard</span>
+      </button>
+
+      <button
+        class="nav-item"
+        [class.active]="activePage === 'Students'"
+        (click)="navigate('Students')">
+        <span class="nav-icon">▤</span>
+        <span>Students</span>
+        <span class="nav-count">{{ students.length }}</span>
+      </button>
+
+      <button
+        class="nav-item"
+        [class.active]="activePage === 'Departments'"
+        (click)="navigate('Departments')">
+        <span class="nav-icon">▦</span>
+        <span>Departments</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="help-card">
+        <div class="help-icon">?</div>
+        <strong>Need assistance?</strong>
+        <p>Manage student records with ease.</p>
+        <a href="https://angular.dev" target="_blank" rel="noopener">
+          Help centre ↗
+        </a>
+      </div>
+
+      <div class="profile">
+        <div class="avatar admin-avatar">AD</div>
+        <div class="profile-info">
+          <strong>Administrator</strong>
+          <small>Campus Admin</small>
+        </div>
+        <span class="profile-dots">•••</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="breadcrumbs">
+        <span>Workspace</span>
+        <span class="crumb-separator">/</span>
+        <strong>{{ activePage }}</strong>
+      </div>
+
+      <div class="topbar-right">
+        <span class="system-status">
+          <span class="status-dot"></span>
+          System operational
+        </span>
+        <div class="avatar top-avatar">AD</div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <section class="page-heading">
+        <div>
+          <p class="eyebrow">CAMPUS OVERVIEW</p>
+          <h1>{{ activePage }}</h1>
+          <p class="page-subtitle">
+            {{
+              activePage === 'Dashboard'
+                ? 'Here is what is happening with your students today.'
+                : activePage === 'Students'
+                  ? 'Manage student information and academic records.'
+                  : 'Explore student distribution across departments.'
+            }}
+          </p>
+        </div>
+
+        <button class="primary-button" (click)="openAddForm()">
+          <span class="button-plus">+</span>
+          Add student
+        </button>
+      </section>
+
+      @if (activePage === 'Dashboard') {
+        <section class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">Total students</span>
+              <span class="stat-icon purple-icon">♙</span>
+            </div>
+            <div class="stat-number">{{ students.length }}</div>
+            <div class="stat-foot">
+              <span class="mini-indicator">●</span>
+              Registered student records
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">Active students</span>
+              <span class="stat-icon green-icon">✓</span>
+            </div>
+            <div class="stat-number">{{ activeCount }}</div>
+            <div class="stat-foot">
+              <span class="positive-text">● Active</span>
+              Currently enrolled records
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">Departments</span>
+              <span class="stat-icon blue-icon">▦</span>
+            </div>
+            <div class="stat-number">{{ departmentCount }}</div>
+            <div class="stat-foot">With registered students</div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">Inactive students</span>
+              <span class="stat-icon amber-icon">◷</span>
+            </div>
+            <div class="stat-number">{{ inactiveCount }}</div>
+            <div class="stat-foot">Records marked inactive</div>
+          </article>
+        </section>
+
+        <section class="overview-grid">
+          <article class="panel department-panel">
+            <div class="panel-heading">
+              <div>
+                <h2>Department overview</h2>
+                <p>Student distribution by department</p>
+              </div>
+              <button class="text-button" (click)="navigate('Departments')">
+                View all <span>→</span>
+              </button>
+            </div>
+
+            <div class="department-list">
+              @for (department of departments; track department) {
+                <div class="department-row">
+                  <div class="department-symbol">
+                    {{ department.substring(0, 2) }}
+                  </div>
+                  <div class="department-details">
+                    <div class="department-name-row">
+                      <strong>{{ department }}</strong>
+                      <span>{{ getDepartmentCount(department) }} students</span>
+                    </div>
+                    <div class="progress-track">
+                      <div
+                        class="progress-fill"
+                        [style.width.%]="getDepartmentPercentage(department)">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </article>
+
+          <article class="panel quick-panel">
+            <div class="panel-heading">
+              <div>
+                <h2>Quick actions</h2>
+                <p>Commonly used operations</p>
+              </div>
+            </div>
+
+            <button class="quick-action" (click)="openAddForm()">
+              <span class="quick-icon quick-purple">＋</span>
+              <span class="quick-copy">
+                <strong>Add a student</strong>
+                <small>Create a new student record</small>
+              </span>
+              <span class="action-arrow">→</span>
+            </button>
+
+            <button class="quick-action" (click)="navigate('Students')">
+              <span class="quick-icon quick-blue">▤</span>
+              <span class="quick-copy">
+                <strong>View students</strong>
+                <small>Browse all student records</small>
+              </span>
+              <span class="action-arrow">→</span>
+            </button>
+
+            <button class="quick-action" (click)="exportStudents()">
+              <span class="quick-icon quick-green">↓</span>
+              <span class="quick-copy">
+                <strong>Export records</strong>
+                <small>Download records as CSV</small>
+              </span>
+              <span class="action-arrow">→</span>
+            </button>
+
+            <div class="tip-box">
+              <span>✦</span>
+              <p><strong>Helpful tip</strong> Keep student details accurate and up to date.</p>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel table-panel">
+          <div class="panel-heading table-panel-heading">
+            <div>
+              <h2>Recent students</h2>
+              <p>Latest student records in your workspace</p>
+            </div>
+            <button class="secondary-button" (click)="navigate('Students')">
+              View all students <span>→</span>
+            </button>
+          </div>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>STUDENT</th>
+                  <th>REGISTER NUMBER</th>
+                  <th>DEPARTMENT</th>
+                  <th>YEAR</th>
+                  <th>STATUS</th>
+                  <th>ACTION</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (student of recentStudents; track student.id) {
+                  <tr>
+                    <td>
+                      <div class="student-cell">
+                        <div class="avatar student-avatar">
+                          {{ student.name.charAt(0).toUpperCase() }}
+                        </div>
+                        <div>
+                          <strong>{{ student.name }}</strong>
+                          <small>{{ student.email }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="register-number">{{ student.registerNumber }}</td>
+                    <td><span class="department-tag">{{ student.department }}</span></td>
+                    <td>{{ student.year }}</td>
+                    <td>
+                      <span class="status-badge" [class.inactive]="student.status === 'Inactive'">
+                        <span></span>{{ student.status }}
+                      </span>
+                    </td>
+                    <td>
+                      <button class="icon-button" title="Edit student" (click)="openEditForm(student)">✎</button>
+                      <button class="icon-button delete-icon" title="Delete student" (click)="confirmDelete(student.id)">×</button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="6" class="empty-state">No student records yet. Add your first student.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      @if (activePage === 'Students') {
+        <section class="panel table-panel full-table-panel">
+          <div class="panel-heading table-panel-heading">
+            <div>
+              <h2>All students</h2>
+              <p>{{ filteredStudents.length }} matching records</p>
+            </div>
+            <button class="secondary-button" (click)="exportStudents()">↓ Export CSV</button>
+          </div>
+
+          <div class="table-toolbar">
+            <label class="search-box">
+              <span>⌕</span>
+              <input
+                type="search"
+                placeholder="Search by name, register no. or email..."
+                [(ngModel)]="searchText"
+              />
+            </label>
+
+            <select aria-label="Filter by department" [(ngModel)]="selectedDepartment">
+              <option>All Departments</option>
+              @for (department of departments; track department) {
+                <option [value]="department">{{ department }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>STUDENT</th>
+                  <th>REGISTER NUMBER</th>
+                  <th>DEPARTMENT</th>
+                  <th>YEAR</th>
+                  <th>STATUS</th>
+                  <th>ACTION</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (student of filteredStudents; track student.id) {
+                  <tr>
+                    <td>
+                      <div class="student-cell">
+                        <div class="avatar student-avatar">
+                          {{ student.name.charAt(0).toUpperCase() }}
+                        </div>
+                        <div>
+                          <strong>{{ student.name }}</strong>
+                          <small>{{ student.email }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="register-number">{{ student.registerNumber }}</td>
+                    <td><span class="department-tag">{{ student.department }}</span></td>
+                    <td>{{ student.year }}</td>
+                    <td>
+                      <span class="status-badge" [class.inactive]="student.status === 'Inactive'">
+                        <span></span>{{ student.status }}
+                      </span>
+                    </td>
+                    <td class="actions-cell">
+                      <button class="icon-button" title="Edit student" (click)="openEditForm(student)">✎</button>
+                      <button class="icon-button delete-icon" title="Delete student" (click)="confirmDelete(student.id)">×</button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="6" class="empty-state">
+                      No students match your search. Try changing the filters.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      @if (activePage === 'Departments') {
+        <section class="department-cards">
+          @for (department of departments; track department) {
+            <article class="panel department-card">
+              <div class="department-symbol large-symbol">{{ department.substring(0, 2) }}</div>
+              <div class="department-card-code">{{ department }}</div>
+              <h2>{{ department }} Department</h2>
+              <p>Registered student records</p>
+              <div class="department-card-count">{{ getDepartmentCount(department) }}</div>
+              <div class="progress-track">
+                <div
+                  class="progress-fill"
+                  [style.width.%]="getDepartmentPercentage(department)">
+                </div>
+              </div>
+              <button class="secondary-button department-view" (click)="navigate('Students'); selectedDepartment = department">
+                View students →
+              </button>
+            </article>
+          }
+        </section>
+      }
+
+      <footer class="page-footer">
+        <span>© 2026 CampusFlow</span>
+        <span>Student Management System <span class="footer-dot">·</span> Version 1.0</span>
+      </footer>
+    </div>
+  </main>
+</div>
+
+@if (showStudentForm) {
+  <div class="modal-backdrop" (click)="closeForm()">
+    <section
+      class="modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="student-modal-title"
+      (click)="$event.stopPropagation()">
+      <div class="modal-heading">
+        <div>
+          <p class="eyebrow">STUDENT RECORD</p>
+          <h2 id="student-modal-title">
+            {{ editingId !== null ? 'Edit student' : 'Add new student' }}
+          </h2>
+          <p>Enter the student's academic and contact details.</p>
+        </div>
+        <button class="modal-close" aria-label="Close form" (click)="closeForm()">×</button>
+      </div>
+
+      <form #studentForm="ngForm" (ngSubmit)="saveStudent()">
+        <div class="form-grid">
+          <label class="form-field">
+            <span>Full name <b>*</b></span>
+            <input
+              name="name"
+              [(ngModel)]="form.name"
+              required
+              minlength="2"
+              placeholder="Enter full name"
+            />
+          </label>
+
+          <label class="form-field">
+            <span>Register number <b>*</b></span>
+            <input
+              name="registerNumber"
+              [(ngModel)]="form.registerNumber"
+              required
+              placeholder="e.g. 23CS005"
+            />
+          </label>
+
+          <label class="form-field">
+            <span>Email address <b>*</b></span>
+            <input
+              type="email"
+              name="email"
+              [(ngModel)]="form.email"
+              required
+              email
+              placeholder="student@example.com"
+            />
+          </label>
+
+          <label class="form-field">
+            <span>Department <b>*</b></span>
+            <select name="department" [(ngModel)]="form.department" required>
+              @for (department of departments; track department) {
+                <option [value]="department">{{ department }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span>Academic year</span>
+            <select name="year" [(ngModel)]="form.year">
+              <option>1st Year</option>
+              <option>2nd Year</option>
+              <option>3rd Year</option>
+              <option>4th Year</option>
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span>Status</span>
+            <select name="status" [(ngModel)]="form.status">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="secondary-button" (click)="closeForm()">Cancel</button>
+          <button type="submit" class="primary-button" [disabled]="studentForm.invalid">
+            {{ editingId !== null ? 'Save changes' : 'Create student' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
+
+@if (showDeleteConfirm !== null) {
+  <div class="modal-backdrop" (click)="cancelDelete()">
+    <section class="confirm-card" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="confirm-icon">!</div>
+      <h2>Delete student record?</h2>
+      <p>This action cannot be undone. The selected student will be removed from this browser's saved records.</p>
+      <div class="modal-actions">
+        <button class="secondary-button" (click)="cancelDelete()">Cancel</button>
+        <button class="danger-button" (click)="deleteStudent()">Delete record</button>
+      </div>
+    </section>
+  </div>
+}
+
+@if (toastMessage) {
+  <div class="toast-message" role="status">
+    <span>✓</span>
+    {{ toastMessage }}
+    <button aria-label="Dismiss message" (click)="dismissToast()">×</button>
+  </div>
+}
